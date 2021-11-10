@@ -1,13 +1,13 @@
-const inquirer = require('inquirer');
+const inquirer = require("inquirer");
 
-let Database = require('./async-db');
-let consoletable = require('console.table');
+let Database = require("./async-db");
+let consoletable = require("console.table");
 
 const db = new Database({
     host: "localhost",
     port: 3306,
     user: "root",
-    password: "",
+    password: "riosqlpwd",
     database: "content"
   });
 
@@ -199,8 +199,7 @@ async function addRole(roleInfo) {
 // 
 
 async function mainPrompt() {
-    return inquirer
-        .prompt([
+    return inquirer.prompt([
             {
                 type: "list",
                 message: "What would you like to do?",
@@ -222,10 +221,9 @@ async function mainPrompt() {
 }
 
 async function getAddEmployeeInfo() {
-    const managers = await getManagerNames();
+    const managers = await getManagers();
     const roles = await getRoles();
-    return inquirer
-        .prompt([
+    return inquirer.prompt([
             {
                 type: "input",
                 name: "first_name",
@@ -258,9 +256,8 @@ async function getAddEmployeeInfo() {
 }
 
 async function getRemoveEmployeeInfo() {
-    const employees = await getEmployeeNames();
-    return inquirer
-    .prompt([
+    const employees = await getEmployees();
+    return inquirer.prompt([
         {
             type: "list",
             message: "Which employee do you want to remove?",
@@ -274,8 +271,7 @@ async function getRemoveEmployeeInfo() {
 }
 
 async function getDepartmentInfo() {
-    return inquirer
-    .prompt([
+    return inquirer.prompt([
         {
             type: "input",
             message: "What is the name of the new department?",
@@ -285,9 +281,8 @@ async function getDepartmentInfo() {
 }
 
 async function getRoleInfo() {
-    const departments = await getDepartmentNames();
-    return inquirer
-    .prompt([
+    const departments = await getDepartments();
+    return inquirer.prompt([
         {
             type: "input",
             message: "What is the title of the new role?",
@@ -303,7 +298,6 @@ async function getRoleInfo() {
             message: "Which department uses this role?",
             name: "departmentName",
             choices: [
-                // populate from db
                 ...departments
             ]
         }
@@ -311,16 +305,14 @@ async function getRoleInfo() {
 }
 
 async function getUpdateEmployeeRoleInfo() {
-    const employees = await getEmployeeNames();
+    const employees = await getEmployees();
     const roles = await getRoles();
-    return inquirer
-        .prompt([
+    return inquirer.prompt([
             {
                 type: "list",
                 message: "Which employee do you want to update?",
                 name: "employeeName",
                 choices: [
-                    // populate from db
                     ...employees
                 ]
             },
@@ -329,7 +321,6 @@ async function getUpdateEmployeeRoleInfo() {
                 message: "What is the employee's new role?",
                 name: "role",
                 choices: [
-                    // populate from db
                     ...roles
                 ]
             }
@@ -344,22 +335,22 @@ async function main() {
 
         switch(prompt.action) {
             case 'VIEW ALL DEPARTMENTS': {
-                await viewAllDepartments();
+                await viewDepartments();
                 break;
             }
 
             case 'VIEW ALL EMPLOYEES': {
-                await viewAllEmployees();
+                await viewEmployees();
                 break;
             }
 
             case 'VIEW ALL EMPLOYEES BY DEPARTMENT': {
-                await viewAllEmployeesByDepartment();
+                await viewEmployeesByDepartment();
                 break;
             }
 
             case 'VIEW ALL ROLES': {
-                await viewAllRoles();
+                await viewRoles();
                 break;
             }
 

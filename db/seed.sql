@@ -13,7 +13,7 @@ INSERT into role (title, salary, department_id) VALUES ("Warehouse Team", 25000,
 INSERT into role (title, salary, department_id) VALUES ("Warehouse Manager", 25000, 3);
 INSERT into role (title, salary, department_id) VALUES ("Corporate Staff", 150000, 4);
 
-INSERT into employee (first_name, last_name, role_id, manager_id) VALUES ("James", "Smith", 1, 1);
-INSERT into employee (first_name, last_name, role_id, manager_id) VALUES ("Richard", "Lopez", 2, 2);
-INSERT into employee (first_name, last_name, role_id, manager_id) VALUES ("Sam", "Donaldson", 3, 3);
-INSERT into employee (first_name, last_name, role_id, manager_id) VALUES ("Matthew", "Richards", 3, 3);
+INSERT into employee (first_name, last_name, role_id, manager_id) VALUES ("James", "Smith", 1, 4);
+INSERT into employee (first_name, last_name, role_id, manager_id) VALUES ("Richard", "Lopez", 2, 4);
+INSERT into employee (first_name, last_name, role_id, manager_id) VALUES ("Sam", "Donaldson", 3, 4);
+INSERT into employee (first_name, last_name, role_id, manager_id) VALUES ("Matthew", "Richards", 4, null);
