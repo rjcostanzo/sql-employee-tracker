@@ -10,7 +10,12 @@ const db = new Database({
     password: "",
     database: "content"
   });
-  
+
+// 
+// 
+// 
+// 
+
 async function getManagers() {
     let query = "SELECT * FROM employee WHERE manager_id IS NULL";
     const rows = await db.query(query);
@@ -175,3 +180,237 @@ async function addDepartment(departmentInfo) {
     const rows = await db.query(query, args);
     console.log(`Added department: ${departmentName}`);
 }
+
+async function addRole(roleInfo) {
+    const departmentId = await getDepartmentId(roleInfo.departmentName);
+    const salary = roleInfo.salary;
+    const title = roleInfo.roleName;
+
+    let query = 'INSERT into role (title, salary, department_id) VALUES (?,?,?)';
+    let args = [title, salary, departmentId];
+
+    const rows = await db.query(query, args);
+    console.log(`Added role: ${title}`);
+}
+
+// 
+// 
+// 
+// 
+
+async function mainPrompt() {
+    return inquirer
+        .prompt([
+            {
+                type: "list",
+                message: "What would you like to do?",
+                name: "action",
+                choices: [
+                    "VIEW ALL DEPARTMENTS",
+                    "VIEW ALL EMPLOYEES",
+                    "VIEW ALL EMPLOYEES BY DEPARTMENT",
+                    "VIEW ALL ROLES",
+                    "ADD DEPARTMENT",
+                    "ADD EMPLOYEE",
+                    "ADD ROLE",
+                    "UPDATE EMPLOYEE ROLE",
+                    "REMOVE EMPLOYEE",
+                    "EXIT"
+                ]
+            }
+        ])
+}
+
+async function getAddEmployeeInfo() {
+    const managers = await getManagerNames();
+    const roles = await getRoles();
+    return inquirer
+        .prompt([
+            {
+                type: "input",
+                name: "first_name",
+                message: "What is the employee's first name?"
+            },
+            {
+                type: "input",
+                name: "last_name",
+                message: "What is the employee's last name?"
+            },
+            {
+                type: "list",
+                message: "What is the employee's role?",
+                name: "role",
+                choices: [
+                    // populate from db
+                    ...roles
+                ]
+            },
+            {
+                type: "list",
+                message: "Who is the employee's manager?",
+                name: "manager",
+                choices: [
+                    // populate from db
+                    ...managers
+                ]
+            }
+        ])
+}
+
+async function getRemoveEmployeeInfo() {
+    const employees = await getEmployeeNames();
+    return inquirer
+    .prompt([
+        {
+            type: "list",
+            message: "Which employee do you want to remove?",
+            name: "employeeName",
+            choices: [
+                // populate from db
+                ...employees
+            ]
+        }
+    ])
+}
+
+async function getDepartmentInfo() {
+    return inquirer
+    .prompt([
+        {
+            type: "input",
+            message: "What is the name of the new department?",
+            name: "departmentName"
+        }
+    ])
+}
+
+async function getRoleInfo() {
+    const departments = await getDepartmentNames();
+    return inquirer
+    .prompt([
+        {
+            type: "input",
+            message: "What is the title of the new role?",
+            name: "roleName"
+        },
+        {
+            type: "input",
+            message: "What is the salary of the new role?",
+            name: "salary"
+        },
+        {
+            type: "list",
+            message: "Which department uses this role?",
+            name: "departmentName",
+            choices: [
+                // populate from db
+                ...departments
+            ]
+        }
+    ])
+}
+
+async function getUpdateEmployeeRoleInfo() {
+    const employees = await getEmployeeNames();
+    const roles = await getRoles();
+    return inquirer
+        .prompt([
+            {
+                type: "list",
+                message: "Which employee do you want to update?",
+                name: "employeeName",
+                choices: [
+                    // populate from db
+                    ...employees
+                ]
+            },
+            {
+                type: "list",
+                message: "What is the employee's new role?",
+                name: "role",
+                choices: [
+                    // populate from db
+                    ...roles
+                ]
+            }
+        ])
+
+}
+
+async function main() {
+    let exitLoop = false;
+    while(!exitLoop) {
+        const prompt = await mainPrompt();
+
+        switch(prompt.action) {
+            case 'VIEW ALL DEPARTMENTS': {
+                await viewAllDepartments();
+                break;
+            }
+
+            case 'VIEW ALL EMPLOYEES': {
+                await viewAllEmployees();
+                break;
+            }
+
+            case 'VIEW ALL EMPLOYEES BY DEPARTMENT': {
+                await viewAllEmployeesByDepartment();
+                break;
+            }
+
+            case 'VIEW ALL ROLES': {
+                await viewAllRoles();
+                break;
+            }
+
+            case 'ADD DEPARTMENT': {
+                const newDepartmentName = await getDepartmentInfo();
+                await addDepartment(newDepartmentName);
+                break;
+            }
+
+            case 'ADD EMPLOYEE': {
+                const newEmployee = await getAddEmployeeInfo();
+                console.log("add an employee");
+                console.log(newEmployee);
+                await addEmployee(newEmployee);
+                break;
+            }
+
+            case 'ADD ROLE': {
+                const newRole = await getRoleInfo();
+                console.log("add a role");
+                await addRole(newRole);
+                break;
+            }
+            
+            case 'UPDATE EMPLOYEE ROLE': {
+                const employee = await getUpdateEmployeeRoleInfo();
+                await updateEmployeeRole(employee);
+                break;
+            }
+
+            case 'REMOVE EMPLOYEE': {
+                const employee = await getRemoveEmployeeInfo();
+                await removeEmployee(employee);
+                break;
+            }
+
+            case 'EXIT': {
+                exitLoop = true;
+                process.exit(0);
+                return;
+            }
+
+            default:
+                console.log(`Something went wrong: ${prompt.action}`);
+        }
+    }
+}
+
+process.on("exit", async function(code) {
+    await db.close();
+    return console.log(`About to exit with code ${code}`);
+});
+
+main();
